@@ -1,3 +1,5 @@
+using webapi;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -21,5 +23,10 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+string message = "";
+bool re = true;
+OracleHelper.DbConn(ref message, ref re);
+Console.WriteLine("----------------\r\n" + (re ? "连接成功" : message) + "\r\n----------------");
 
 app.Run();

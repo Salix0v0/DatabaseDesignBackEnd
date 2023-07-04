@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
+
 
 namespace webapi.Controllers;
 
@@ -19,14 +21,28 @@ public class WeatherForecastController : ControllerBase
     }
 
     [HttpGet(Name = "GetWeatherForecast")]
-    public IEnumerable<WeatherForecast> Get()
+    public IEnumerable<Instructor> Get()
     {
-        return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        string selectTest = "SELECT * FROM FISH.INSTRUCTOR";
+        string msg = "";
+        DataTable dt= OracleHelper.SelectSql(selectTest,ref msg);
+
+        return Enumerable.Range(0, dt.Rows.Count).Select(index => new Instructor
         {
-            Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = Summaries[Random.Shared.Next(Summaries.Length)]
+            ID = int.Parse(dt.Rows[index]["ID"].ToString()),
+            Name = dt.Rows[index]["NAME"].ToString(),
+            Dept_Name = dt.Rows[index]["DEPT_NAME"].ToString(),
+            Salary = float.Parse(dt.Rows[index]["SALARY"].ToString())
         })
         .ToArray();
+
+        //return Enumerable.Range(0, 5).Select(index => new Instructor
+        //{
+        //    ID = 55,
+        //    Name = "hh",
+        //    Dept_Name = "sc",
+        //    Salary = 50.0f
+        //})
+        //.ToArray();
     }
 }
