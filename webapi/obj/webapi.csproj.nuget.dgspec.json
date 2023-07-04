@@ -1,23 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "E:\\DataBaseDesign\\CarManagement\\webapi\\webapi.csproj": {}
+    "E:\\DBProject\\DatabaseDesignBackEnd\\webapi\\webapi.csproj": {}
   },
   "projects": {
-    "E:\\DataBaseDesign\\CarManagement\\webapi\\webapi.csproj": {
+    "E:\\DBProject\\DatabaseDesignBackEnd\\webapi\\webapi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\DataBaseDesign\\CarManagement\\webapi\\webapi.csproj",
+        "projectUniqueName": "E:\\DBProject\\DatabaseDesignBackEnd\\webapi\\webapi.csproj",
         "projectName": "webapi",
-        "projectPath": "E:\\DataBaseDesign\\CarManagement\\webapi\\webapi.csproj",
-        "packagesPath": "C:\\Users\\22689\\.nuget\\packages\\",
-        "outputPath": "E:\\DataBaseDesign\\CarManagement\\webapi\\obj\\",
+        "projectPath": "E:\\DBProject\\DatabaseDesignBackEnd\\webapi\\webapi.csproj",
+        "packagesPath": "C:\\Users\\DELL\\.nuget\\packages\\",
+        "outputPath": "E:\\DBProject\\DatabaseDesignBackEnd\\webapi\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-        ],
         "configFilePaths": [
-          "C:\\Users\\22689\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\DELL\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -47,6 +44,10 @@
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[7.0.7, )"
+            },
+            "Oracle.ManagedDataAccess.Core": {
+              "target": "Package",
+              "version": "[3.21.100, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
