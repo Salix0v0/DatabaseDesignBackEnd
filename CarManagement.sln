@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "vueapp", "vueapp\vueapp.esproj", "{080EDDA0-39EC-42E1-BFE7-AF37232A6E33}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4C84D742-1A81-46FE-95B2-E3770C2A4ECF} = {4C84D742-1A81-46FE-95B2-E3770C2A4ECF}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "webapi", "webapi\webapi.csproj", "{4C84D742-1A81-46FE-95B2-E3770C2A4ECF}"
 EndProject
