@@ -5,7 +5,7 @@ namespace webapi
 {
     public class OracleHelper
     {
-        public static string connectString = "Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=100.80.159.166)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=ORCL)));User ID=system;password=YUCX5@oracle";//;Data Source=(DESCRIPTION = (ADDRESS_LIST= (ADDRESS = (PROTOCOL = TCP)(HOST =AHSL)(PORT =1521))) (CONNECT_DATA = (SERVICE_NAME = slkm3)))";
+        public static string connectString = "Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=8.130.71.216)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=ORCLCDB)));User ID=system;password=123456";
         #region 数据库连接
         public static OracleConnection DbConn(ref string message, ref Boolean re)
         {

@@ -23,7 +23,7 @@ public class WeatherForecastController : ControllerBase
     [HttpGet(Name = "GetWeatherForecast")]
     public IEnumerable<Instructor> Get()
     {
-        string selectTest = "SELECT * FROM FISH.INSTRUCTOR";
+        string selectTest = "SELECT * FROM C##CAR.INSTRUCTOR";
         string msg = "";
         DataTable dt= OracleHelper.SelectSql(selectTest,ref msg);
 
@@ -35,14 +35,5 @@ public class WeatherForecastController : ControllerBase
             Salary = float.Parse(dt.Rows[index]["SALARY"].ToString())
         })
         .ToArray();
-
-        //return Enumerable.Range(0, 5).Select(index => new Instructor
-        //{
-        //    ID = 55,
-        //    Name = "hh",
-        //    Dept_Name = "sc",
-        //    Salary = 50.0f
-        //})
-        //.ToArray();
     }
 }
