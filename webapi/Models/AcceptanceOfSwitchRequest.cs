@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WebApplication3.Models;
+namespace webapi.Models;
 
 public partial class AcceptanceOfSwitchRequest
 {
@@ -11,5 +11,5 @@ public partial class AcceptanceOfSwitchRequest
 
     public virtual Staff Employee { get; set; } = null!;
 
-    public virtual SwitchRequest SwitchRequest { get; set; } = null!;
+    public virtual SwitchRequest? SwitchRequest { get; set; }
 }

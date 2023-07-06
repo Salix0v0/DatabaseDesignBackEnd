@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WebApplication3.Models;
+namespace webapi.Models;
 
 public partial class MaintenanceItem
 {
@@ -19,7 +19,9 @@ public partial class MaintenanceItem
 
     public string? OrderStatus { get; set; }
 
-    public string? Evaluation { get; set; }
+    public string? Evaluations { get; set; }
+
+    public virtual CompletionOfMaintenance? CompletionOfMaintenance { get; set; }
 
     public virtual Vehicle Vehicle { get; set; } = null!;
 }

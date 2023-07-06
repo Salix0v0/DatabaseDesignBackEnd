@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WebApplication3.Models;
+namespace webapi.Models;
 
 public partial class Vehicle
 {
@@ -13,9 +13,17 @@ public partial class Vehicle
 
     public DateTime PurchaseDate { get; set; }
 
-    public virtual ICollection<BatteryPosition> BatteryPositions { get; set; } = new List<BatteryPosition>();
+    public string? BatteryId { get; set; }
+
+    public virtual Battery? Battery { get; set; }
 
     public virtual ICollection<MaintenanceItem> MaintenanceItems { get; set; } = new List<MaintenanceItem>();
 
     public virtual Owner Owner { get; set; } = null!;
+
+    public virtual ICollection<SwitchRecord> SwitchRecords { get; set; } = new List<SwitchRecord>();
+
+    public virtual ICollection<SwitchRequest> SwitchRequests { get; set; } = new List<SwitchRequest>();
+
+    public virtual VehicleParameter VehicleModelNavigation { get; set; } = null!;
 }

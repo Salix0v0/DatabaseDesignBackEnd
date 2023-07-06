@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WebApplication3.Models;
+namespace webapi.Models;
 
 public partial class VehicleParameter
 {
@@ -14,4 +14,6 @@ public partial class VehicleParameter
     public string Manufacturer { get; set; } = null!;
 
     public decimal? MaxSpeed { get; set; }
+
+    public virtual ICollection<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
 }

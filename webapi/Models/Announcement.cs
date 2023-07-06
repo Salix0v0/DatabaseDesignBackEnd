@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WebApplication3.Models;
+namespace webapi.Models;
 
 public partial class Announcement
 {
@@ -9,7 +9,13 @@ public partial class Announcement
 
     public DateTime PublishTime { get; set; }
 
+    public string? PublishPos { get; set; }
+
     public string Title { get; set; } = null!;
 
-    public string? Content { get; set; }
+    public string? Contents { get; set; }
+
+    public decimal? Likes { get; set; }
+
+    public decimal? ViewCount { get; set; }
 }

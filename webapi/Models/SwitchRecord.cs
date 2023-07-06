@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WebApplication3.Models;
+namespace webapi.Models;
 
 public partial class SwitchRecord
 {
@@ -15,11 +15,15 @@ public partial class SwitchRecord
 
     public string SwappedBatteryId { get; set; } = null!;
 
-    public string BatterySource { get; set; } = null!;
-
     public string SwappedOutBatteryId { get; set; } = null!;
 
-    public string SwappedOutBatteryDestination { get; set; } = null!;
+    public string? Evaluations { get; set; }
 
-    public string? Evaluation { get; set; }
+    public virtual Staff Employee { get; set; } = null!;
+
+    public virtual Battery SwappedBattery { get; set; } = null!;
+
+    public virtual Battery SwappedOutBattery { get; set; } = null!;
+
+    public virtual Vehicle Vehicle { get; set; } = null!;
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WebApplication3.Models;
+namespace webapi.Models;
 
 public partial class Performance
 {
@@ -14,4 +14,6 @@ public partial class Performance
     public decimal? ServiceCount { get; set; }
 
     public decimal? PositiveRating { get; set; }
+
+    public virtual Staff Employee { get; set; } = null!;
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WebApplication3.Models;
+namespace webapi.Models;
 
 public partial class SwitchRequest
 {
@@ -9,11 +9,13 @@ public partial class SwitchRequest
 
     public string VehicleId { get; set; } = null!;
 
-    public string EmployeeId { get; set; } = null!;
+    public string? SwitchMode { get; set; }
 
     public DateTime RequestTime { get; set; }
 
     public string? Remarks { get; set; }
 
-    public virtual AcceptanceOfSwitchRequest? AcceptanceOfSwitchRequest { get; set; }
+    public virtual AcceptanceOfSwitchRequest SwitchRequestNavigation { get; set; } = null!;
+
+    public virtual Vehicle Vehicle { get; set; } = null!;
 }

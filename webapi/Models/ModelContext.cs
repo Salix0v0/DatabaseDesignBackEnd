@@ -1,8 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using webapi.Models;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
-namespace WebApplication3.Models;
+namespace webapi.Models;
 
 public partial class ModelContext : DbContext
 {
@@ -21,7 +26,9 @@ public partial class ModelContext : DbContext
 
     public virtual DbSet<Battery> Batteries { get; set; }
 
-    public virtual DbSet<BatteryPosition> BatteryPositions { get; set; }
+    public virtual DbSet<BatteryModel> BatteryModels { get; set; }
+
+    public virtual DbSet<BatterySwitchStation> BatterySwitchStations { get; set; }
 
     public virtual DbSet<CompletionOfMaintenance> CompletionOfMaintenances { get; set; }
 
@@ -35,8 +42,6 @@ public partial class ModelContext : DbContext
 
     public virtual DbSet<StaffInSwitchStation> StaffInSwitchStations { get; set; }
 
-    public virtual DbSet<StaffInformation> StaffInformations { get; set; }
-
     public virtual DbSet<SwitchRecord> SwitchRecords { get; set; }
 
     public virtual DbSet<SwitchRequest> SwitchRequests { get; set; }
@@ -49,7 +54,7 @@ public partial class ModelContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseOracle("Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=8.130.71.216)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=ORCLCDB)));User ID=C##CAR;password=123456");
+        => optionsBuilder.UseOracle("DATA SOURCE=8.130.71.216/ORCLCDB;USER ID=C##CAR;PASSWORD=123456;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -59,7 +64,7 @@ public partial class ModelContext : DbContext
 
         modelBuilder.Entity<AcceptanceOfSwitchRequest>(entity =>
         {
-            entity.HasKey(e => e.SwitchRequestId).HasName("SYS_C007762");
+            entity.HasKey(e => e.SwitchRequestId).HasName("SYS_C008039");
 
             entity.ToTable("ACCEPTANCE_OF_SWITCH_REQUESTS");
 
@@ -76,16 +81,11 @@ public partial class ModelContext : DbContext
                 .HasForeignKey(d => d.EmployeeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ACCEPTANCE_OF_SWITCH_REQUESTS_EMPLOYEE");
-
-            entity.HasOne(d => d.SwitchRequest).WithOne(p => p.AcceptanceOfSwitchRequest)
-                .HasForeignKey<AcceptanceOfSwitchRequest>(d => d.SwitchRequestId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_ACCEPTANCE_OF_SWITCH_REQUESTS_SWITCH_REQUEST");
         });
 
         modelBuilder.Entity<Announcement>(entity =>
         {
-            entity.HasKey(e => e.AnnouncementId).HasName("SYS_C007701");
+            entity.HasKey(e => e.AnnouncementId).HasName("SYS_C008018");
 
             entity.ToTable("ANNOUNCEMENT");
 
@@ -93,10 +93,18 @@ public partial class ModelContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("ANNOUNCEMENT_ID");
-            entity.Property(e => e.Content)
+            entity.Property(e => e.Contents)
                 .HasMaxLength(255)
                 .IsUnicode(false)
-                .HasColumnName("CONTENT_");
+                .HasColumnName("CONTENTS");
+            entity.Property(e => e.Likes)
+                .HasDefaultValueSql("0")
+                .HasColumnType("NUMBER(38)")
+                .HasColumnName("LIKES");
+            entity.Property(e => e.PublishPos)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("PUBLISH_POS");
             entity.Property(e => e.PublishTime)
                 .HasPrecision(6)
                 .HasColumnName("PUBLISH_TIME");
@@ -104,11 +112,15 @@ public partial class ModelContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("TITLE");
+            entity.Property(e => e.ViewCount)
+                .HasDefaultValueSql("0\n")
+                .HasColumnType("NUMBER(38)")
+                .HasColumnName("VIEW_COUNT");
         });
 
         modelBuilder.Entity<Battery>(entity =>
         {
-            entity.HasKey(e => e.BatteryId).HasName("SYS_C007698");
+            entity.HasKey(e => e.BatteryId).HasName("SYS_C007996");
 
             entity.ToTable("BATTERY");
 
@@ -120,75 +132,81 @@ public partial class ModelContext : DbContext
                 .HasMaxLength(1)
                 .IsUnicode(false)
                 .HasDefaultValueSql("'0'")
+                .IsFixedLength()
                 .HasColumnName("AVAILABLE_STATUS");
-            entity.Property(e => e.BatteryLife)
-                .HasColumnType("FLOAT")
-                .HasColumnName("BATTERY_LIFE");
-            entity.Property(e => e.BatteryModel)
+            entity.Property(e => e.BatteryModelId)
                 .HasMaxLength(50)
                 .IsUnicode(false)
-                .HasColumnName("BATTERY_MODEL");
+                .HasColumnName("BATTERY_MODEL_ID");
             entity.Property(e => e.CurrentCapacity)
-                .HasColumnType("NUMBER(38)")
+                .HasMaxLength(4)
+                .IsUnicode(false)
                 .HasColumnName("CURRENT_CAPACITY");
             entity.Property(e => e.ManufacturingDate)
                 .HasPrecision(6)
                 .HasColumnName("MANUFACTURING_DATE");
+
+            entity.HasOne(d => d.BatteryModel).WithMany(p => p.Batteries)
+                .HasForeignKey(d => d.BatteryModelId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_BATTERY_MODEL");
+        });
+
+        modelBuilder.Entity<BatteryModel>(entity =>
+        {
+            entity.HasKey(e => e.BatteryModelId).HasName("SYS_C007992");
+
+            entity.ToTable("BATTERY_MODEL");
+
+            entity.Property(e => e.BatteryModelId)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("BATTERY_MODEL_ID");
+            entity.Property(e => e.BatteryLife)
+                .HasColumnType("FLOAT")
+                .HasColumnName("BATTERY_LIFE");
             entity.Property(e => e.TotalCapacity)
-                .HasDefaultValueSql("100")
-                .HasColumnType("NUMBER(38)")
+                .HasMaxLength(50)
+                .IsUnicode(false)
                 .HasColumnName("TOTAL_CAPACITY");
         });
 
-        modelBuilder.Entity<BatteryPosition>(entity =>
+        modelBuilder.Entity<BatterySwitchStation>(entity =>
         {
-            entity.HasKey(e => e.BatteryId).HasName("SYS_C007742");
+            entity.HasKey(e => e.BatteryId).HasName("SYS_C008020");
 
-            entity.ToTable("BATTERY_POSITION");
+            entity.ToTable("BATTERY_SWITCH_STATIONS");
 
             entity.Property(e => e.BatteryId)
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("BATTERY_ID");
-            entity.Property(e => e.PositionStatus)
-                .HasDefaultValueSql("0")
-                .HasColumnType("NUMBER(38)")
-                .HasColumnName("POSITION_STATUS");
             entity.Property(e => e.SwitchStationId)
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("SWITCH_STATION_ID");
-            entity.Property(e => e.VehicleId)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("VEHICLE_ID");
 
-            entity.HasOne(d => d.Battery).WithOne(p => p.BatteryPosition)
-                .HasForeignKey<BatteryPosition>(d => d.BatteryId)
+            entity.HasOne(d => d.Battery).WithOne(p => p.BatterySwitchStation)
+                .HasForeignKey<BatterySwitchStation>(d => d.BatteryId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_BATTERY_POSITION_BATTERY");
+                .HasConstraintName("FK_BATTERY_BATTERY_SWITCH_STATIONS");
 
-            entity.HasOne(d => d.SwitchStation).WithMany(p => p.BatteryPositions)
+            entity.HasOne(d => d.SwitchStation).WithMany(p => p.BatterySwitchStations)
                 .HasForeignKey(d => d.SwitchStationId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_BATTERY_POSITION_SWITCH_STATION");
-
-            entity.HasOne(d => d.Vehicle).WithMany(p => p.BatteryPositions)
-                .HasForeignKey(d => d.VehicleId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_BATTERY_POSITION_VEHICLE");
+                .HasConstraintName("FK_BATTERY_SWITCH_STATIONS_SWITCH_STATIONS");
         });
 
         modelBuilder.Entity<CompletionOfMaintenance>(entity =>
         {
-            entity.HasKey(e => e.MaintenanceId).HasName("SYS_C007759");
+            entity.HasKey(e => e.MaintenanceItemId).HasName("SYS_C008063");
 
             entity.ToTable("COMPLETION_OF_MAINTENANCE");
 
-            entity.Property(e => e.MaintenanceId)
+            entity.Property(e => e.MaintenanceItemId)
                 .HasMaxLength(50)
                 .IsUnicode(false)
-                .HasColumnName("MAINTENANCE_ID");
+                .HasColumnName("MAINTENANCE_ITEM_ID");
             entity.Property(e => e.EmployeeId)
                 .HasMaxLength(50)
                 .IsUnicode(false)
@@ -197,25 +215,30 @@ public partial class ModelContext : DbContext
             entity.HasOne(d => d.Employee).WithMany(p => p.CompletionOfMaintenances)
                 .HasForeignKey(d => d.EmployeeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_COMPLETION_OF_MAINTENANCE_EMPLOYEE");
+                .HasConstraintName("FK_COMPLETION_OF_MAINTENANCE_STAFF");
+
+            entity.HasOne(d => d.MaintenanceItem).WithOne(p => p.CompletionOfMaintenance)
+                .HasForeignKey<CompletionOfMaintenance>(d => d.MaintenanceItemId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_COMPLETION_OF_MAINTENANCE_MAINTENANCE_ITEMS");
         });
 
         modelBuilder.Entity<MaintenanceItem>(entity =>
         {
-            entity.HasKey(e => e.MaintenanceItemId).HasName("SYS_C007737");
+            entity.HasKey(e => e.MaintenanceItemId).HasName("SYS_C008059");
 
             entity.ToTable("MAINTENANCE_ITEMS");
 
-            entity.HasIndex(e => e.MaintenanceLocation, "SYS_C007738").IsUnique();
+            entity.HasIndex(e => e.MaintenanceLocation, "SYS_C008060").IsUnique();
 
             entity.Property(e => e.MaintenanceItemId)
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("MAINTENANCE_ITEM_ID");
-            entity.Property(e => e.Evaluation)
+            entity.Property(e => e.Evaluations)
                 .HasMaxLength(255)
                 .IsUnicode(false)
-                .HasColumnName("EVALUATION_");
+                .HasColumnName("EVALUATIONS");
             entity.Property(e => e.MaintenanceLocation)
                 .HasMaxLength(50)
                 .IsUnicode(false)
@@ -249,7 +272,7 @@ public partial class ModelContext : DbContext
 
         modelBuilder.Entity<Owner>(entity =>
         {
-            entity.HasKey(e => e.OwnerId).HasName("SYS_C007729");
+            entity.HasKey(e => e.OwnerId).HasName("SYS_C008007");
 
             entity.ToTable("OWNERS");
 
@@ -279,24 +302,24 @@ public partial class ModelContext : DbContext
                 .IsUnicode(false)
                 .IsFixedLength()
                 .HasColumnName("GENDER");
-            entity.Property(e => e.OwnerNickname)
+            entity.Property(e => e.PasswordP)
                 .HasMaxLength(50)
                 .IsUnicode(false)
-                .HasColumnName("OWNER_NICKNAME");
-            entity.Property(e => e.Password)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("PASSWORD_");
+                .HasColumnName("PASSWORD_P");
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasDefaultValueSql("'+86'")
                 .HasColumnName("PHONE_NUMBER");
+            entity.Property(e => e.Username)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("USERNAME");
         });
 
         modelBuilder.Entity<Performance>(entity =>
         {
-            entity.HasKey(e => e.PerformanceId).HasName("SYS_C007712");
+            entity.HasKey(e => e.PerformanceId).HasName("SYS_C008025");
 
             entity.ToTable("PERFORMANCES");
 
@@ -318,11 +341,16 @@ public partial class ModelContext : DbContext
             entity.Property(e => e.TotalPerformance)
                 .HasColumnType("NUMBER(38)")
                 .HasColumnName("TOTAL_PERFORMANCE");
+
+            entity.HasOne(d => d.Employee).WithMany(p => p.Performances)
+                .HasForeignKey(d => d.EmployeeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PERFORMANCES_STAFF");
         });
 
         modelBuilder.Entity<Staff>(entity =>
         {
-            entity.HasKey(e => e.EmployeeId).HasName("SYS_C007752");
+            entity.HasKey(e => e.EmployeeId).HasName("SYS_C008015");
 
             entity.ToTable("STAFF");
 
@@ -333,52 +361,50 @@ public partial class ModelContext : DbContext
             entity.Property(e => e.Avatar)
                 .HasColumnType("BLOB")
                 .HasColumnName("AVATAR");
-            entity.Property(e => e.CreationTime)
+            entity.Property(e => e.CreatiTime)
                 .HasPrecision(6)
-                .HasColumnName("CREATION_TIME");
+                .HasColumnName("CREATI_TIME");
             entity.Property(e => e.Gender)
                 .HasMaxLength(1)
                 .IsUnicode(false)
                 .IsFixedLength()
                 .HasColumnName("GENDER");
-            entity.Property(e => e.IdCardNum)
+            entity.Property(e => e.IdentityNumber)
                 .HasMaxLength(50)
                 .IsUnicode(false)
-                .HasColumnName("ID_CARD_NUM");
-            entity.Property(e => e.Name)
+                .HasColumnName("IDENTITY_NUMBER");
+            entity.Property(e => e.NameP)
                 .HasMaxLength(50)
                 .IsUnicode(false)
-                .HasColumnName("NAME_");
-            entity.Property(e => e.Password)
+                .HasColumnName("NAME_P");
+            entity.Property(e => e.PasswordP)
                 .HasMaxLength(50)
                 .IsUnicode(false)
-                .HasColumnName("PASSWORD_");
+                .HasColumnName("PASSWORD_P");
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasDefaultValueSql("'+86'")
                 .HasColumnName("PHONE_NUMBER");
-            entity.Property(e => e.Position)
+            entity.Property(e => e.Positions)
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasDefaultValueSql("'-'")
-                .HasColumnName("POSITION_");
+                .HasColumnName("POSITIONS");
+            entity.Property(e => e.Salary)
+                .HasColumnType("NUMBER")
+                .HasColumnName("SALARY");
             entity.Property(e => e.Username)
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("USERNAME");
-
-            entity.HasOne(d => d.IdCardNumNavigation).WithMany(p => p.Staff)
-                .HasForeignKey(d => d.IdCardNum)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_STAFF_ID_CARD_NUMBER");
         });
 
         modelBuilder.Entity<StaffInSwitchStation>(entity =>
         {
-            entity.HasKey(e => e.EmployeeId).HasName("SYS_C007755");
+            entity.HasKey(e => e.EmployeeId).HasName("SYS_C008035");
 
-            entity.ToTable("STAFF_IN_SWITCH_STATION");
+            entity.ToTable("STAFF_IN_SWITCH_STATIONS");
 
             entity.Property(e => e.EmployeeId)
                 .HasMaxLength(50)
@@ -392,38 +418,17 @@ public partial class ModelContext : DbContext
             entity.HasOne(d => d.Employee).WithOne(p => p.StaffInSwitchStation)
                 .HasForeignKey<StaffInSwitchStation>(d => d.EmployeeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_STAFF_IN_SWITCH_STATION_EMPLOYEE");
+                .HasConstraintName("FK_STAFF_IN_SWITCH_STATIONS_EMPLOYEE");
 
             entity.HasOne(d => d.SwitchStation).WithMany(p => p.StaffInSwitchStations)
                 .HasForeignKey(d => d.SwitchStationId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_STAFF_IN_SWITCH_STATION_SWITCH_STATION");
-        });
-
-        modelBuilder.Entity<StaffInformation>(entity =>
-        {
-            entity.HasKey(e => e.IdentityNumber).HasName("SYS_C007723");
-
-            entity.ToTable("STAFF_INFORMATION");
-
-            entity.Property(e => e.IdentityNumber)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("IDENTITY_NUMBER");
-            entity.Property(e => e.Gender)
-                .HasMaxLength(1)
-                .IsUnicode(false)
-                .IsFixedLength()
-                .HasColumnName("GENDER");
-            entity.Property(e => e.Name)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("NAME_");
+                .HasConstraintName("FK_STAFF_IN_SWITCH_STATIONS_SWITCH_STATIONS");
         });
 
         modelBuilder.Entity<SwitchRecord>(entity =>
         {
-            entity.HasKey(e => e.SwitchServiceId).HasName("SYS_C007709");
+            entity.HasKey(e => e.SwitchServiceId).HasName("SYS_C008046");
 
             entity.ToTable("SWITCH_RECORDS");
 
@@ -431,26 +436,18 @@ public partial class ModelContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("SWITCH_SERVICE_ID");
-            entity.Property(e => e.BatterySource)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("BATTERY_SOURCE");
             entity.Property(e => e.EmployeeId)
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("EMPLOYEE_ID");
-            entity.Property(e => e.Evaluation)
+            entity.Property(e => e.Evaluations)
                 .HasMaxLength(255)
                 .IsUnicode(false)
-                .HasColumnName("EVALUATION_");
+                .HasColumnName("EVALUATIONS");
             entity.Property(e => e.SwappedBatteryId)
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("SWAPPED_BATTERY_ID");
-            entity.Property(e => e.SwappedOutBatteryDestination)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("SWAPPED_OUT_BATTERY_DESTINATION");
             entity.Property(e => e.SwappedOutBatteryId)
                 .HasMaxLength(50)
                 .IsUnicode(false)
@@ -462,11 +459,31 @@ public partial class ModelContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("VEHICLE_ID");
+
+            entity.HasOne(d => d.Employee).WithMany(p => p.SwitchRecords)
+                .HasForeignKey(d => d.EmployeeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_SWITCH_RECORDS_STAFF");
+
+            entity.HasOne(d => d.SwappedBattery).WithMany(p => p.SwitchRecordSwappedBatteries)
+                .HasForeignKey(d => d.SwappedBatteryId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_SWITCH_RECORDS_BATTERY_IN");
+
+            entity.HasOne(d => d.SwappedOutBattery).WithMany(p => p.SwitchRecordSwappedOutBatteries)
+                .HasForeignKey(d => d.SwappedOutBatteryId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_SWITCH_RECORDS_BATTERY_OUT");
+
+            entity.HasOne(d => d.Vehicle).WithMany(p => p.SwitchRecords)
+                .HasForeignKey(d => d.VehicleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_SWITCH_RECORDS_VEHICLES");
         });
 
         modelBuilder.Entity<SwitchRequest>(entity =>
         {
-            entity.HasKey(e => e.SwitchRequestId).HasName("SYS_C007689");
+            entity.HasKey(e => e.SwitchRequestId).HasName("SYS_C008054");
 
             entity.ToTable("SWITCH_REQUESTS");
 
@@ -474,10 +491,6 @@ public partial class ModelContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("SWITCH_REQUEST_ID");
-            entity.Property(e => e.EmployeeId)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("EMPLOYEE_ID");
             entity.Property(e => e.Remarks)
                 .HasMaxLength(255)
                 .IsUnicode(false)
@@ -485,21 +498,36 @@ public partial class ModelContext : DbContext
             entity.Property(e => e.RequestTime)
                 .HasPrecision(6)
                 .HasColumnName("REQUEST_TIME");
+            entity.Property(e => e.SwitchMode)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .IsFixedLength()
+                .HasColumnName("SWITCH_MODE");
             entity.Property(e => e.VehicleId)
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("VEHICLE_ID");
+
+            entity.HasOne(d => d.SwitchRequestNavigation).WithOne(p => p.SwitchRequest)
+                .HasForeignKey<SwitchRequest>(d => d.SwitchRequestId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_SWITCH_REQUESTS_ACCEPTANCE_OF_SWITCH_REQUESTS");
+
+            entity.HasOne(d => d.Vehicle).WithMany(p => p.SwitchRequests)
+                .HasForeignKey(d => d.VehicleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_SWITCH_REQUESTS_VEHICLES");
         });
 
         modelBuilder.Entity<SwitchStation>(entity =>
         {
-            entity.HasKey(e => e.SwitchStationId).HasName("SYS_C007718");
+            entity.HasKey(e => e.SwitchStationId).HasName("SYS_C007987");
 
             entity.ToTable("SWITCH_STATIONS");
 
-            entity.HasIndex(e => e.Longitude, "SYS_C007719").IsUnique();
+            entity.HasIndex(e => e.Longitude, "SYS_C007988").IsUnique();
 
-            entity.HasIndex(e => e.Latitude, "SYS_C007720").IsUnique();
+            entity.HasIndex(e => e.Latitude, "SYS_C007989").IsUnique();
 
             entity.Property(e => e.SwitchStationId)
                 .HasMaxLength(50)
@@ -509,17 +537,14 @@ public partial class ModelContext : DbContext
                 .HasDefaultValueSql("0\n")
                 .HasColumnType("NUMBER(38)")
                 .HasColumnName("AVAILABLE_BATTERY_COUNT");
-            entity.Property(e => e.AvailableStatus)
-                .HasMaxLength(1)
-                .IsUnicode(false)
-                .HasColumnName("AVAILABLE_STATUS");
             entity.Property(e => e.BatteryCapacity)
                 .HasColumnType("NUMBER(38)")
                 .HasColumnName("BATTERY_CAPACITY");
-            entity.Property(e => e.FaultStatus)
+            entity.Property(e => e.FaliureStatus)
                 .HasMaxLength(1)
                 .IsUnicode(false)
-                .HasColumnName("FAULT_STATUS");
+                .IsFixedLength()
+                .HasColumnName("FALIURE_STATUS");
             entity.Property(e => e.Latitude)
                 .HasColumnType("NUMBER")
                 .HasColumnName("LATITUDE");
@@ -534,7 +559,7 @@ public partial class ModelContext : DbContext
 
         modelBuilder.Entity<Vehicle>(entity =>
         {
-            entity.HasKey(e => e.VehicleId).HasName("SYS_C007733");
+            entity.HasKey(e => e.VehicleId).HasName("SYS_C008030");
 
             entity.ToTable("VEHICLES");
 
@@ -542,6 +567,11 @@ public partial class ModelContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("VEHICLE_ID");
+            entity.Property(e => e.BatteryId)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasDefaultValueSql("NULL")
+                .HasColumnName("BATTERY_ID");
             entity.Property(e => e.OwnerId)
                 .HasMaxLength(50)
                 .IsUnicode(false)
@@ -554,15 +584,24 @@ public partial class ModelContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("VEHICLE_MODEL");
 
+            entity.HasOne(d => d.Battery).WithMany(p => p.Vehicles)
+                .HasForeignKey(d => d.BatteryId)
+                .HasConstraintName("FK_VEHICLES_BATTERY");
+
             entity.HasOne(d => d.Owner).WithMany(p => p.Vehicles)
                 .HasForeignKey(d => d.OwnerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_VEHICLES_OWNER");
+
+            entity.HasOne(d => d.VehicleModelNavigation).WithMany(p => p.Vehicles)
+                .HasForeignKey(d => d.VehicleModel)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_VEHICLES_VEHICLE_PARAMETERS");
         });
 
         modelBuilder.Entity<VehicleParameter>(entity =>
         {
-            entity.HasKey(e => e.VehicleModel).HasName("SYS_C007693");
+            entity.HasKey(e => e.VehicleModel).HasName("SYS_C008001");
 
             entity.ToTable("VEHICLE_PARAMETERS");
 

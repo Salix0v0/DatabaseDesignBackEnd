@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WebApplication3.Models;
+namespace webapi.Models;
 
 public partial class SwitchStation
 {
@@ -13,15 +13,13 @@ public partial class SwitchStation
 
     public decimal Latitude { get; set; }
 
-    public string? AvailableStatus { get; set; }
-
-    public string? FaultStatus { get; set; }
+    public string? FaliureStatus { get; set; }
 
     public decimal BatteryCapacity { get; set; }
 
     public decimal? AvailableBatteryCount { get; set; }
 
-    public virtual ICollection<BatteryPosition> BatteryPositions { get; set; } = new List<BatteryPosition>();
+    public virtual ICollection<BatterySwitchStation> BatterySwitchStations { get; set; } = new List<BatterySwitchStation>();
 
     public virtual ICollection<StaffInSwitchStation> StaffInSwitchStations { get; set; } = new List<StaffInSwitchStation>();
 }

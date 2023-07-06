@@ -1,4 +1,4 @@
-using webapi;
+using webapi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddDbContext<ModelContext>();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
@@ -26,7 +27,7 @@ app.MapControllers();
 
 string message = "";
 bool re = true;
-OracleHelper.DbConn(ref message, ref re);
+webapi.OracleHelper.DbConn(ref message, ref re);
 Console.WriteLine("----------------\r\n" + (re ? "连接成功" : message) + "\r\n----------------");
 
 app.Run();

@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WebApplication3.Models;
+namespace webapi.Models;
 
 public partial class Owner
 {
     public string OwnerId { get; set; } = null!;
 
-    public string OwnerNickname { get; set; } = null!;
+    public string Username { get; set; } = null!;
 
-    public string Password { get; set; } = null!;
+    public string PasswordP { get; set; } = null!;
 
     public byte[]? Avatar { get; set; }
 
