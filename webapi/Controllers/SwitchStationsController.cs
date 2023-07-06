@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Runtime.Intrinsics.X86;
 using System.Threading.Tasks;
@@ -9,12 +10,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.DotNet.Scaffolding.Shared.CodeModifier.CodeChange;
 using Microsoft.EntityFrameworkCore;
+using Oracle.ManagedDataAccess.Client;
 using webapi.Models;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace webapi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class SwitchStationsController : ControllerBase
     {
@@ -27,13 +29,21 @@ namespace webapi.Controllers
 
         // GET: api/SwitchStations
         [HttpGet]
-        public ActionResult<IEnumerable<SwitchStation>> GetSwitchStations()
+        public async Task<ActionResult<IEnumerable<SwitchStation>>> GetSwitchStations()
         {
-            if (_context.SwitchStations == null)
+            //string selectTest = "SELECT * FROM C##CAR.SWITCH_STATIONS";
+            //string msg = "";
+            //DataTable dt = OracleHelper.SelectSql(selectTest, ref msg);
+            //return Enumerable.Range(0, dt.Rows.Count).Select(index => new SwitchStation
+            //{
+            //    SwitchStationId = dt.Rows[index]["Switch_Station_ID"].ToString(),
+            //    StationName = dt.Rows[index]["Station_Name"].ToString(),
+            //}).ToArray();
+            if (_context.Performances == null)
             {
                 return NotFound();
             }
-            return _context.SwitchStations.ToList();
+            return await _context.SwitchStations.ToListAsync();
         }
 
         // GET: api/SwitchStations/5
